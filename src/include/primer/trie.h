@@ -46,7 +46,7 @@ class TrieNode {
   // Create a TrieNode with no children.
   TrieNode() = default;
 
-  // Create a TrieNode with some children.
+  // Create a TrieNode with some children.传进来的是一个指针，move是转让所有权给children_
   explicit TrieNode(std::map<char, std::shared_ptr<const TrieNode>> children) : children_(std::move(children)) {}
 
   virtual ~TrieNode() = default;
@@ -60,10 +60,11 @@ class TrieNode {
   // Note: if you want to convert `unique_ptr` into `shared_ptr`, you can use `std::shared_ptr<T>(std::move(ptr))`.
   virtual auto Clone() const -> std::unique_ptr<TrieNode> { return std::make_unique<TrieNode>(children_); }
 
-  // A map of children, where the key is the next character in the key, and the value is the next TrieNode.
+  // A map of children, where the key is the next character in the key, and the value is the next
+  // TrieNode.创建自己的孩子节点
   std::map<char, std::shared_ptr<const TrieNode>> children_;
 
-  // Indicates if the node is the terminal node.
+  // Indicates if the node is the terminal node.指示不是重点节点
   bool is_value_node_{false};
 
   // You can add additional fields and methods here. But in general, you don't need to add extra fields to
