@@ -17,6 +17,7 @@ auto TrieStore::Get(std::string_view key) -> std::optional<ValueGuard<T>> {
   // （3）如果找到值，返回一个 ValueGuard 对象，该对象持有对值和根的引用。否则，返回 std::nullopt 。
   // throw NotImplementedException("TrieStore::Get is not implemented.");
   root_lock_.lock();
+  // 就是锁上之后，其他人再执行get方法访问就访问不了了，因为root_lock_已经分配出去了，就是其他的get、Put和Remove都被u阻塞了
   auto root = root_;
   root_lock_.unlock();
   const T *value = root.Get<T>(key);
