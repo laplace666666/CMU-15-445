@@ -26,6 +26,7 @@ namespace bustub {
  * Store indexed key and record id(record id = page id combined with slot id,
  * see include/common/rid.h for detailed implementation) together within leaf
  * page. Only support unique key.
+ * RID = 页id + 页内id 唯一的锁定了数据存储的位置，所以叶子节点就能精确到实际存储位置，可以认为是二级索引。
  *
  * Leaf page format (keys are stored in order):
  *  ----------------------------------------------------------------------
@@ -58,7 +59,16 @@ class BPlusTreeLeafPage : public BPlusTreePage {
   auto GetNextPageId() const -> page_id_t;
   void SetNextPageId(page_id_t next_page_id);
   auto KeyAt(int index) const -> KeyType;
-
+  auto ValueAt(int index) const -> ValueType;
+  auto Lookup(const KeyType &key, const KeyComparator &comparator) const -> int;
+  auto Insert(const KeyType &key, const ValueType &value, const KeyComparator &comparator) -> int;
+  void MoveHalfTo(BPlusTreeLeafPage *recipient);
+  void MoveFirstToEndOf(BPlusTreeLeafPage *recipient);
+  void MoveEndToFrontOf(BPlusTreeLeafPage *recipient);
+  auto RemoveKeyAt(const KeyType &key, const KeyComparator &comparator) -> bool;
+  void RemoveAt(int index);
+  void MoveAllTo(B_PLUS_TREE_LEAF_PAGE_TYPE *recipient);
+  auto GetObjAt(int index) const -> const MappingType &;
   /**
    * @brief for test only return a string representing all keys in
    * this leaf page formatted as "(key1,key2,key3,...)"
@@ -85,7 +95,7 @@ class BPlusTreeLeafPage : public BPlusTreePage {
   }
 
  private:
-  page_id_t next_page_id_;
+  page_id_t next_page_id_;  // 这里面还指向了下一个页面id，毕竟叶子节点存储真实的数据，需要更多的页存储
   // Flexible array member for page data.
   MappingType array_[0];
 };

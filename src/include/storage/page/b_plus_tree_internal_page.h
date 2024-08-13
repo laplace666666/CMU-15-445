@@ -32,6 +32,7 @@ namespace bustub {
  *  --------------------------------------------------------------------------
  * | HEADER | KEY(1)+PAGE_ID(1) | KEY(2)+PAGE_ID(2) | ... | KEY(n)+PAGE_ID(n) |
  *  --------------------------------------------------------------------------
+ * 说明这个value指向的是另外一个页
  */
 INDEX_TEMPLATE_ARGUMENTS
 class BPlusTreeInternalPage : public BPlusTreePage {
@@ -60,6 +61,8 @@ class BPlusTreeInternalPage : public BPlusTreePage {
    */
   void SetKeyAt(int index, const KeyType &key);
 
+  void SetValueAt(int index, const ValueType &value);
+
   /**
    *
    * @param value the value to search for
@@ -72,6 +75,24 @@ class BPlusTreeInternalPage : public BPlusTreePage {
    * @return the value at the index
    */
   auto ValueAt(int index) const -> ValueType;
+  // 给定键，找对其对应的下一级页面的id
+  auto Lookup(const KeyType &key, const KeyComparator &comparator) const -> int;
+  // 给内部页面的添加第一个元素
+  void InsertFirstOf(const page_id_t &value);
+  // 在内部页面中插入数据
+  auto Insert(const KeyType &key, const page_id_t &value, const KeyComparator &comparator) -> int;
+  // 分裂过程中移动一半到另外一个页面
+  void MoveHalfTo(B_PLUS_TREE_INTERNAL_PAGE_TYPE *recipient);
+  // 讲右边页面的第一个移动到左边最后一个
+  void MoveFirstToEndOf(B_PLUS_TREE_INTERNAL_PAGE_TYPE *recipient);
+  // 讲最后一个移动到另外一个的最前面
+  void MoveEndToFrontOf(B_PLUS_TREE_INTERNAL_PAGE_TYPE *recipient);
+  // 根据index删除某个元素
+  void EraseAt(int index);
+
+  auto RemoveKeyAt(const KeyType &key, const KeyComparator &comparator) -> bool;
+
+  void MoveAllTo(B_PLUS_TREE_INTERNAL_PAGE_TYPE *recipient);
 
   /**
    * @brief For test only, return a string representing all keys in
@@ -101,6 +122,6 @@ class BPlusTreeInternalPage : public BPlusTreePage {
 
  private:
   // Flexible array member for page data.
-  MappingType array_[0];
+  MappingType array_[0];  // 键值对 pair<KeyType, ValueType>，可以根据.first访问key，second访问value，这里面存储数据
 };
 }  // namespace bustub

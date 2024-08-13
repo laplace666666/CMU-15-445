@@ -76,15 +76,18 @@ class BasicPageGuard {
   template <class T>
   auto AsMut() -> T * {
     return reinterpret_cast<T *>(GetDataMut());
+    // GetDataMut()是执行页面的数据的指针，后面写就在这上面更改
+    // 将这个指针变成head_page类型的，方便页面进行写数据
   }
 
  private:
   friend class ReadPageGuard;
+  // 首先这个类是Read和write的私有属性（注意他们没有继承basic），所以要访问属性的私有部分就需要友元
   friend class WritePageGuard;
 
-  [[maybe_unused]] BufferPoolManager *bpm_{nullptr};
-  Page *page_{nullptr};
-  bool is_dirty_{false};
+  [[maybe_unused]] BufferPoolManager *bpm_{nullptr};  // 有一个缓冲池管理
+  Page *page_{nullptr};                               // 一个页面
+  bool is_dirty_{false};                              // 这个页面是否被更改
 };
 
 class ReadPageGuard {

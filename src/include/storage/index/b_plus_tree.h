@@ -46,14 +46,19 @@ class Context {
 
   // Save the root page id here so that it's easier to know if the current page is the root page.
   page_id_t root_page_id_{INVALID_PAGE_ID};
-
-  // Store the write guards of the pages that you're modifying here.
+  // B+树根节点的id
+  //  Store the write guards of the pages that you're modifying here.
   std::deque<WritePageGuard> write_set_;
+  // 这个writePageGuard里面有一个buffer_pool_manager，他有属性可以获取一个读的页，并上锁，然后writePageGuard再读完之后再解锁。
 
   // You may want to use this when getting value, but not necessary.
   std::deque<ReadPageGuard> read_set_;
 
+  std::deque<page_id_t> access_set_;
+
   auto IsRootPage(page_id_t page_id) -> bool { return page_id == root_page_id_; }
+
+  ~Context();
 };
 
 #define BPLUSTREE_TYPE BPlusTree<KeyType, ValueType, KeyComparator>
@@ -77,13 +82,30 @@ class BPlusTree {
 
   // Remove a key and its value from this B+ tree.
   void Remove(const KeyType &key, Transaction *txn);
+  void RemoveEntry(page_id_t basic_page_id, const KeyType &key, Context &ctx);
 
   // Return the value associated with a given key
   auto GetValue(const KeyType &key, std::vector<ValueType> *result, Transaction *txn = nullptr) -> bool;
-
+  // 返回value对应leaf_page_id
+  auto GetKeyAt(const KeyType &key, const KeyComparator &comparator, Context &ctx) -> page_id_t;
   // Return the page id of the root node
   auto GetRootPageId() -> page_id_t;
+  // 返回要插入的叶子页号
+  auto InsertGetKeyAt(const KeyType &key, const KeyComparator &comparator, Context &ctx) -> page_id_t;
+  // 返回要删除的样本所在的叶子页面
+  auto DeleteGetKeyAt(const KeyType &key, const KeyComparator &comparator, Context &ctx) -> page_id_t;
+  // 重新设置根页面
+  void SetRootPageId(page_id_t page_id, Context &ctx);
+  // 把分裂出来的新的页面号加入到上一层的内部页面
+  void InsertInParent(page_id_t leaf_page_left_id, KeyType key, page_id_t leaf_page_right_id, Context &ctx);
 
+  auto GetParentPageId(page_id_t child, Context &ctx) -> page_id_t;
+
+  void SetTreeEmpty(Context &ctx);
+
+  auto GetSiblingPageId(const BPlusTree::InternalPage *parent_page, const KeyType &key, Context &ctx);
+
+  void ReplaceKeyAt(BPlusTree::InternalPage *page, const KeyType &src, const KeyType &dst, Context &ctx);
   // Index iterator
   auto Begin() -> INDEXITERATOR_TYPE;
 
@@ -137,7 +159,7 @@ class BPlusTree {
   std::vector<std::string> log;  // NOLINT
   int leaf_max_size_;
   int internal_max_size_;
-  page_id_t header_page_id_;
+  page_id_t header_page_id_;  // 为什么不存储根节点的page_id要存储header_page_id
 };
 
 /**

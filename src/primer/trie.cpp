@@ -99,8 +99,8 @@ std::shared_ptr<const TrieNode> Dfs(const std::shared_ptr<const TrieNode> &root,
   std::shared_ptr<const TrieNode> new_node;          // 创建一个指向新节点的指针
   auto t = std::const_pointer_cast<TrieNode>(root);  // 把root转换成非const类型
   if (t->children_.find(key[index]) != root->children_.end()) {
-    new_node =
-        Dfs(t->children_[key[index]], key, index + 1);  // 继续往下找，并返回root的clone或者本身，返回值如果是nullptr
+    new_node = Dfs(t->children_[key[index]], key, index + 1);
+    // 继续往下找，并返回root的clone或者本身，返回值如果是nullptr
     auto node = root->Clone();  // 为什么克隆，因为这个roote可能还有其他的链接
     if (new_node) {
       node->children_[key[index]] = new_node;  // 如果不是空值，就把返回的这个非值的trienodea加入到这里面来
