@@ -53,7 +53,7 @@ struct TableInfo {
   /** The table name */
   const std::string name_;
   /** An owning pointer to the table heap */
-  std::unique_ptr<TableHeap> table_;
+  std::unique_ptr<TableHeap> table_;  // table不是一个迭代器啊，怎么就能够初始化迭代器
   /** The table OID */
   const table_oid_t oid_;
 };
@@ -123,8 +123,8 @@ class Catalog {
    * @param create_table_heap whether to create a table heap for the new table
    * @return A (non-owning) pointer to the metadata for the table
    */
-  auto CreateTable(Transaction *txn, const std::string &table_name, const Schema &schema, bool create_table_heap = true)
-      -> TableInfo * {
+  auto CreateTable(Transaction *txn, const std::string &table_name, const Schema &schema,
+                   bool create_table_heap = true) -> TableInfo * {
     if (table_names_.count(table_name) != 0) {
       return NULL_TABLE_INFO;
     }
@@ -178,7 +178,7 @@ class Catalog {
    * @return A (non-owning) pointer to the metadata for the table
    */
   auto GetTable(table_oid_t table_oid) const -> TableInfo * {
-    auto meta = tables_.find(table_oid);
+    auto meta = tables_.find(table_oid);  // 这里面就存了table_id 和 table_info的信息。
     if (meta == tables_.end()) {
       return NULL_TABLE_INFO;
     }

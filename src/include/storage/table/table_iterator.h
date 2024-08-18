@@ -32,14 +32,14 @@ class TableIterator {
   friend class Cursor;
 
  public:
-  DISALLOW_COPY(TableIterator);
-
+  DISALLOW_COPY(TableIterator);  // 不能使用拷贝构造，只能移动构造，所以迭代器只能使用移动指针
+                                 // 一个是指针，一个是开始位置，一个是结束位置
   TableIterator(TableHeap *table_heap, RID rid, RID stop_at_rid);
   TableIterator(TableIterator &&) = default;
 
   ~TableIterator() = default;
 
-  auto GetTuple() -> std::pair<TupleMeta, Tuple>;
+  auto GetTuple() -> std::pair<TupleMeta, Tuple>;  // 迭代器是指向一条数据，可以访问数据的信息
 
   auto GetRID() -> RID;
 
@@ -48,7 +48,7 @@ class TableIterator {
   auto operator++() -> TableIterator &;
 
  private:
-  TableHeap *table_heap_;
+  TableHeap *table_heap_;  // 指向一个表
   RID rid_;
 
   // When creating table iterator, we will record the maximum RID that we should scan.

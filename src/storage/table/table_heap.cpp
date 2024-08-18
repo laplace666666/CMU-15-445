@@ -25,7 +25,7 @@
 #include "storage/table/table_heap.h"
 
 namespace bustub {
-
+// 表头
 TableHeap::TableHeap(BufferPoolManager *bpm) : bpm_(bpm) {
   // Initialize the first table page.
   auto guard = bpm->NewPageGuarded(&first_page_id_);
@@ -111,6 +111,7 @@ auto TableHeap::MakeIterator() -> TableIterator {
   guard.unlock();
 
   auto page_guard = bpm_->FetchPageRead(last_page_id);
+  // B+树的页面存储的是索引，叶子页面和内部页面，这个是存储真实的数据是表页
   auto page = page_guard.As<TablePage>();
   return {this, {first_page_id_, 0}, {last_page_id, page->GetNumTuples()}};
 }
