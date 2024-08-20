@@ -133,7 +133,7 @@ INDEX_TEMPLATE_ARGUMENTS
 auto BPLUSTREE_TYPE::InsertGetKeyAt(const KeyType &key, const KeyComparator &comparator, Context &ctx) -> page_id_t {
   auto header_page_guard = bpm_->FetchPageWrite(header_page_id_);  // 加锁了
   auto *header_page = header_page_guard.template AsMut<BPlusTreeHeaderPage>();
-  ctx.header_page_ = std::move(header_page_guard);   
+  ctx.header_page_ = std::move(header_page_guard);
   page_id_t root_page_id = header_page->root_page_id_;
   if (root_page_id == INVALID_PAGE_ID) {
     bpm_->NewPageGuarded(&root_page_id);

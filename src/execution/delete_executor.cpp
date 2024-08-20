@@ -39,8 +39,8 @@ auto DeleteExecutor::Next([[maybe_unused]] Tuple *tuple, RID *rid) -> bool {
     // 重新写回去
     table_info_->table_->UpdateTupleMeta(meta, delete_rid);  // 才真正的删除了
     // 删除索引
-    auto index_infos_ = exec_ctx_->GetCatalog()->GetTableIndexes(table_info_->name_);
-    for (auto &index_info : index_infos_) {
+    auto index_infos = exec_ctx_->GetCatalog()->GetTableIndexes(table_info_->name_);
+    for (auto &index_info : index_infos) {
       index_info->index_->DeleteEntry(
           delete_tuple.KeyFromTuple(table_info_->schema_, index_info->key_schema_, index_info->index_->GetKeyAttrs()),
           delete_rid, exec_ctx_->GetTransaction());

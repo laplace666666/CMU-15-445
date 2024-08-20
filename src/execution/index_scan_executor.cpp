@@ -16,7 +16,7 @@ IndexScanExecutor::IndexScanExecutor(ExecutorContext *exec_ctx, const IndexScanP
     : AbstractExecutor(exec_ctx),
       plan_(plan),
       index_info_(exec_ctx->GetCatalog()->GetIndex(plan->index_oid_)),  // 索引信息，按照某个索引扫描
-      table_info(exec_ctx->GetCatalog()->GetTable(index_info_->table_name_)),
+      table_info_(exec_ctx->GetCatalog()->GetTable(index_info_->table_name_)),
       index_(dynamic_cast<BPlusTreeIndexForTwoIntegerColumn *>(index_info_->index_.get())),
       iter_(index_->GetBeginIterator()) {}
 
@@ -26,7 +26,7 @@ auto IndexScanExecutor::Next(Tuple *tuple, RID *rid) -> bool {
   while (iter_ != index_->GetEndIterator()) {
     // 迭代器中放的是key-value数据
     *rid = (*iter_).second;  // 对应的RID
-    auto [meta, tuple_temp] = table_info->table_->GetTuple(*rid);
+    auto [meta, tuple_temp] = table_info_->table_->GetTuple(*rid);
     // 有删除的元祖需要跳过
     if (meta.is_deleted_) {
       ++(iter_);

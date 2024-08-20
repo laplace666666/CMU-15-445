@@ -31,7 +31,8 @@ auto SeqScanExecutor::Next(Tuple *tuple, RID *rid) -> bool {
     auto [meta, tuple_] = iter_->GetTuple();
     // 判断是不是被删除了，记录在meta中
     if (meta.is_deleted_) {
-      ++(*iter_);  // 因为iter是一个指针指向的迭代器，解引用不是指向的迭代器指向的数据，而是指向的迭代器，其实就是指针指向指针
+      ++(*iter_);
+      // 因为iter是一个指针指向的迭代器，解引用不是指向的迭代器指向的数据，而是指向的迭代器，其实就是指针指向指针
       continue;
     }
     *tuple = tuple_;

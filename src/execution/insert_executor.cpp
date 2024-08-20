@@ -33,14 +33,14 @@ auto InsertExecutor::Next([[maybe_unused]] Tuple *tuple, RID *rid) -> bool {
   Tuple insert_tuple{};
   RID insert_rid{};
   // 以此做插入
-  TupleMeta tupleMeta{};
+  TupleMeta tuple_meta{};
   // 从child里面拿数据
   while (child_->Next(&insert_tuple, &insert_rid)) {
-    tupleMeta.is_deleted_ = false;
-    tupleMeta.insert_txn_id_ = INVALID_TXN_ID;
-    tupleMeta.delete_txn_id_ = INVALID_TXN_ID;
+    tuple_meta.is_deleted_ = false;
+    tuple_meta.insert_txn_id_ = INVALID_TXN_ID;
+    tuple_meta.delete_txn_id_ = INVALID_TXN_ID;
     // 插入返回一个id
-    std::optional<RID> new_rid = table_info_->table_->InsertTuple(tupleMeta, insert_tuple, exec_ctx_->GetLockManager(),
+    std::optional<RID> new_rid = table_info_->table_->InsertTuple(tuple_meta, insert_tuple, exec_ctx_->GetLockManager(),
                                                                   exec_ctx_->GetTransaction(), plan_->table_oid_);
     if (!new_rid) {
       continue;
